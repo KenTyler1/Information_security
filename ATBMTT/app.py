@@ -1,6 +1,5 @@
 from email import message
 from os import sep
-from turtle import color
 from django.shortcuts import redirect
 from numpy import size
 import streamlit as st
@@ -306,7 +305,7 @@ elif choice == "Mã DES":
                         row = bin2dec(int(xor_x[j * 6] + xor_x[j * 6 + 5]))
                         col = bin2dec(int(xor_x[j * 6 + 1] + xor_x[j * 6 + 2] +
                         xor_x[j * 6 + 3] + xor_x[j * 6 + 4]))
-                        val = sbox[j][row][col]
+                        val = sbox[int(j)][int(row)][int(col)]
                         sbox_str = sbox_str + dec2bin(val)
 
                     # Hoán vị P
