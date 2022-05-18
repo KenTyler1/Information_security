@@ -186,34 +186,34 @@ LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # if __name__ == '__main__':
 #     main()
 # 5. Ma Affine
-def mod_inverse(x,m):
-    for n in range(m):
-        if (x * n) % m == 1:
-            return n
-            break
-        elif n == m - 1:
-            return "Null"
-        else:
-            continue
+# def mod_inverse(x,m):
+#     for n in range(m):
+#         if (x * n) % m == 1:
+#             return n
+#             break
+#         elif n == m - 1:
+#             return "Null"
+#         else:
+#             continue
 
-class Affine(object):
-    DIE = 26
-    KEY = (7, 3, mod_inverse(7,26))
-    def __init__(self):
-        pass
-    def encryptChar(self, char):
-        K1, K2, kI = self.KEY
-        return chr((K1 * (ord(char)-65) + K2) % self.DIE + 65)
+# class Affine(object):
+#     DIE = 26
+#     KEY = (9, 3, mod_inverse(9,26))
+#     def __init__(self):
+#         pass
+#     def encryptChar(self, char):
+#         K1, K2, kI = self.KEY
+#         return chr((K1 * (ord(char)-65) + K2) % self.DIE + 65)
+    
+#     def encrypt(self, string):
+#         return "".join(map(self.encryptChar, string))
 
-    def encrypt(self, string):
-        return "".join(map(self.encryptChar, string))
+#     def decryptChar(self, char):
+#         K1, K2, KI = self.KEY
+#         return chr(KI * ((ord(char)-65) - K2) % self.DIE + 65)
 
-    def decryptChar(self, char):
-        K1, K2, KI = self.KEY
-        return chr(KI * ((ord(char)-65) - K2) % self.DIE + 65)
-
-    def decrypt(self, string):
-        return "".join(map(self.decryptChar, string))
+#     def decrypt(self, string):
+#         return "".join(map(self.decryptChar, string))
 
 # affine = Affine()
 # p = 'ONAUGUST'
@@ -470,7 +470,7 @@ def mod_inverse(x,m):
             return n
             break
         elif n == m - 1:
-            return "Null"
+            return st.warning("NULL")
         else:
             continue
 

@@ -14,14 +14,14 @@ import sys
 from elgamal.elgamal import Elgamal
 
 st.set_page_config(
-    page_title="An toàn bảo mật TT", 
+    page_title="An toàn bảo mật Thông Tin", 
     page_icon=":shark:",
     layout="centered", 
     initial_sidebar_state="auto", 
     menu_items=None
 )
 
-st.header('Hệ mã cổ điển')
+st.header('Hệ mã cổ điển và hệ mã công khai')
 choices = ["Vui lòng chọn hệ mã", "Mã đảo ngược", "Mã Caesar","Mã đổi chỗ","Mã thay thế đơn","Mã Affine","Mã Vigenere","Mã Hill","Base64","Hệ mã XOR","Mã nhân","Fernet chuỗi ký tự","Thám mã Ceasar","Mã DES","Mã RSA","Mã Elgamal"]
 choice = st.selectbox("", choices, 0)
 
@@ -70,6 +70,7 @@ elif choice == "Mã đổi chỗ":
         if k == "":
             st.warning('Vui lòng nhập k !!!')
         else:
+            # a = message.replace(" ","")
             # Mã hóa mã đổi chỗ
             translated = cd.encryptDc(message,k)
             st.markdown('**Kết quả đã được encrypt:**')
@@ -97,9 +98,8 @@ elif choice == "Mã thay thế đơn":
             # Giải mã thay thế đơn
             decrypted = cd.decryptChange(translated,key)
             st.markdown('**Trả về kết quả decrypted:**')
-            st.text(decrypted)
-
-        if len(key) < len(cd.LETTERS):
+            st.text(decrypted)     
+        elif len(key) < len(cd.LETTERS):
             st.warning('Vui lòng nhập đủ 26 khóa ALPHA !!!')
         else:
             # Mã hóa thay thế đơn
@@ -111,21 +111,57 @@ elif choice == "Mã thay thế đơn":
             st.markdown('**Trả về kết quả decrypted:**')
             st.text(decrypted)
 elif choice == "Mã Affine":
-    affine = cd.Affine()
     message = st.text_input("Nhập vào mã muốn được mã hóa:")
     st.caption("VD: ONAUGUST")
     if message == "":
         st.warning('Vui lòng nhập thông tin cần thiết !!!')
     else:
-        st.header(affine.KEY)
-        # Mã hóa Affine
-        translated = affine.encrypt(message)
-        st.markdown('**Kết quả đã được encrypt:**')
-        st.text(translated)
-        # Giải mã Affine
-        decrypted = affine.decrypt(translated)
-        st.markdown('**Trả về kết quả decrypted:**')
-        st.text(decrypted)
+        buff, col, buff2 = st.columns([1,3,4])
+        a = col.text_input('Nhập key a:')
+        b = col.text_input('Nhập key b:') 
+        if a == "":
+            st.warning('Vui lòng nhập khóa a !!!')
+        elif b == "":
+            st.warning('Vui lòng nhập khóa b !!!')
+        else:
+            def mod_inverse(x,m):
+                for n in range(m):
+                    if (x * n) % m == 1:
+                        return n
+                        break
+                    elif n == m - 1:
+                        return "Null"
+                    else:
+                        continue
+
+            class Affine(object):
+                DIE = 26
+                KEY = (int(a), int(b), mod_inverse(int(a),26))
+                def __init__(self):
+                    pass
+                def encryptChar(self, char):
+                    K1, K2, kI = self.KEY
+                    return chr((K1 * (ord(char)-65) + K2) % self.DIE + 65)
+                
+                def encrypt(self, string):
+                    return "".join(map(self.encryptChar, string))
+
+                def decryptChar(self, char):
+                    K1, K2, KI = self.KEY
+                    return chr(KI * ((ord(char)-65) - K2) % self.DIE + 65)
+
+                def decrypt(self, string):
+                    return "".join(map(self.decryptChar, string))
+                
+            affine = Affine()
+            # Mã hóa Affine
+            translated = affine.encrypt(message)
+            st.markdown('**Kết quả đã được encrypt:**')
+            st.text(translated)
+            # Giải mã Affine
+            decrypted = affine.decrypt(translated)
+            st.markdown('**Trả về kết quả decrypted:**')
+            st.text(decrypted)
 elif choice == "Mã Vigenere":
     message = st.text_input("Nhập vào mã muốn được mã hóa:")
     st.caption("VD: THISCRYPTOSYSTEMISNOTSECURE và key: CIPHER ")
@@ -201,12 +237,13 @@ elif choice == "Mã nhân":
     if message == "":
         st.warning('Vui lòng nhập thông tin cần thiết !!!')
     else:
+        a = message.replace(" ","")
         buff, col, buff2 = st.columns([1,3,4])
         k = col.text_input('Nhập k:')
         if k == "":
             st.warning('Vui lòng nhập khóa !!!')
         else:
-            e = cd.encryptNhan(message,k)
+            e = cd.encryptNhan(a,k)
             st.markdown('**Kết quả đã được encrypt:**')
             st.text(e)
             st.markdown('**Trả về kết quả decrypted:**')
@@ -253,15 +290,13 @@ elif choice == "Mã DES":
     st.caption("VD: pt = '0123456789ABCDEF' && key = '133457799BBCDFF0'")
     if message == "":
         st.warning('Vui lòng nhập thông tin cần thiết !!!')
-    elif len(message) < 16 | len(message) > 16:
-        st.warning('Vui lòng nhập độ dài hợp lý')
     else:
         buff, col, buff2 = st.columns([1,3,4])
         key = col.text_input('Nhập key:')
         if key == "":
             st.warning('Vui lòng nhập khóa !!!')
-        elif len(key) < 16 | len(key) > 16:
-            st.warning('Vui lòng nhập độ dài khóa hợp lý')
+        elif len(key) < len(message):
+            st.warning('Vui lòng nhập lại khóa')
         else:
             pt = hex2bin(message)
             pt = permute(pt, initial_perm, 64)
@@ -346,44 +381,47 @@ elif choice == "Mã DES":
 elif choice == "Mã RSA":
     keyPair = RSA.generate(2048)
     pubKey = keyPair.publickey()
-    st.text(f"Public key:(n={hex(pubKey.n)}, e={hex(pubKey.e)})")
+    # st.text(f"Public key:(n={hex(pubKey.n)}, e={hex(pubKey.e)})")
     pubKeyPEM = pubKey.exportKey()
-    st.text(pubKeyPEM.decode('ascii'))
-    st.text(f"Private key: (n={hex(pubKey.n)}, d={hex(keyPair.d)})")
+    # st.text(pubKeyPEM.decode('ascii'))
+    # st.text(f"Private key: (n={hex(pubKey.n)}, d={hex(keyPair.d)})")
     privKeyPEM = keyPair.exportKey()
-    st.text(privKeyPEM.decode('ascii'))
+    # st.text(privKeyPEM.decode('ascii'))
 
     msg = bytes(str(st.text_input("Nhập plain text: ")), 'utf-8')
-    encryptor = PKCS1_OAEP.new(pubKey)
-    encrypted = encryptor.encrypt(msg)
-    st.write("Encrypted:", binascii.hexlify(encrypted))
-    decryptor = PKCS1_OAEP.new(keyPair)
-    decrypted = decryptor.decrypt(encrypted)
-    st.write('Decrypted:', decrypted.decode('utf-8'))
+    if msg == "":
+        st.warning("Vui lòng nhập message")
+    else:
+        encryptor = PKCS1_OAEP.new(pubKey)
+        encrypted = encryptor.encrypt(msg)
+        st.write("Encrypted:", binascii.hexlify(encrypted))
+        decryptor = PKCS1_OAEP.new(keyPair)
+        decrypted = decryptor.decrypt(encrypted)
+        st.write('Decrypted:', decrypted.decode('utf-8'))
 
-    msg = st.text_input("hello...")
-    if (len(sys.argv)>1):
-        msg=str(sys.argv[1])
+        msg = st.text_input("Message:")
+        if (len(sys.argv)>1):
+            msg=str(sys.argv[1])
 
-    key = RSA.generate(1024)
+        key = RSA.generate(1024)
 
-    binPrivKey = key.exportKey('PEM')
-    binPubKey = key.publickey().exportKey('PEM')
-    st.subheader ("====================Private key====================")
+        binPrivKey = key.exportKey('PEM')
+        binPubKey = key.publickey().exportKey('PEM') 
+        # st.subheader ("====================Private key====================")
 
-    st.text (binPrivKey)
-    st.subheader ("====================Public key=====================")
-    st.text (binPubKey)
-    privKeyObj = RSA.importKey(binPrivKey)
-    pubKeyObj = RSA.importKey(binPubKey)
-    cipher = PKCS1_OAEP.new(pubKeyObj)
-    ciphertext = cipher.encrypt(msg.encode())
-    st.subheader ("====================Ciphertext=====================")
-    st.text (b64encode(ciphertext))
-    cipher = PKCS1_OAEP.new(privKeyObj)
-    message = cipher.decrypt(ciphertext)
-    st.subheader ("====================Decrypted======================")
-    st.write ("Message:",message)
+        # st.text (binPrivKey)
+        # st.subheader ("====================Public key=====================")
+        # st.text (binPubKey)
+        privKeyObj = RSA.importKey(binPrivKey)
+        pubKeyObj = RSA.importKey(binPubKey)
+        cipher = PKCS1_OAEP.new(pubKeyObj)
+        ciphertext = cipher.encrypt(msg.encode())
+        st.subheader ("====================Ciphertext=====================")
+        st.write (b64encode(ciphertext))
+        cipher = PKCS1_OAEP.new(privKeyObj)
+        message = cipher.decrypt(ciphertext)
+        st.subheader ("====================Decrypted======================")
+        st.write ("Message:",message)
 elif choice == "Mã Elgamal":
     msg=st.text_input("Nhập message: ")
     if msg == "":
